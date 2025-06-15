@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "geocoding.api.url",
+      "type": "java.lang.String",
+      "description": "Description for geocoding.api.url."
+  }
+] }
