@@ -2,8 +2,11 @@ package com.example.distanceservice.service;
 
 import com.example.distanceservice.dto.DistanceResponse;
 import com.example.distanceservice.entity.City;
+import com.example.distanceservice.entity.CityPair;
 import com.example.distanceservice.exception.CityNotFoundException;
 import com.example.distanceservice.repository.CityRepository;
+import com.example.distanceservice.service.RequestCounter;
+import com.example.distanceservice.cache.SimpleCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,26 +18,43 @@ public class DistanceService {
     private final CityRepository cityRepository;
     private final GeocodingService geocodingService;
     private final RequestCounter requestCounter;
+    private final SimpleCache simpleCache;
 
     @Autowired
-    public DistanceService(CityRepository cityRepository, GeocodingService geocodingService, RequestCounter requestCounter) {
+    public DistanceService(CityRepository cityRepository, GeocodingService geocodingService, RequestCounter requestCounter, SimpleCache simpleCache) {
         this.cityRepository = cityRepository;
         this.geocodingService = geocodingService;
         this.requestCounter = requestCounter;
+        this.simpleCache = simpleCache;
     }
 
-    public DistanceResponse calculateDistance(String city1, String city2) {
+    public DistanceResponse calculateDistance(String city1Name, String city2Name) {
         requestCounter.increment();
-        City c1 = cityRepository.findByName(city1).orElseGet(() -> geocodingService.getCity(city1));
-        if (c1 == null) {
-            throw new CityNotFoundException("City " + city1 + " not found");
+        String cacheKey = "distance_" + city1Name.toLowerCase() + "_" + city2Name.toLowerCase();
+        @SuppressWarnings("unchecked")
+        DistanceResponse cachedResponse = (DistanceResponse) simpleCache.get(cacheKey);
+        if (cachedResponse != null) {
+            return cachedResponse;
         }
-        City c2 = cityRepository.findByName(city2).orElseGet(() -> geocodingService.getCity(city2));
-        if (c2 == null) {
-            throw new CityNotFoundException("City " + city2 + " not found");
+
+        City city1 = cityRepository.findByName(city1Name.toLowerCase())
+                .orElseGet(() -> geocodingService.getCity(city1Name));
+        City city2 = cityRepository.findByName(city2Name.toLowerCase())
+                .orElseGet(() -> geocodingService.getCity(city2Name));
+        if (city1 == null || city2 == null) {
+            throw new CityNotFoundException("One or both cities not found");
         }
-        double distance = calculateHaversine(c1.getLatitude(), c1.getLongitude(), c2.getLatitude(), c2.getLongitude());
-        return new DistanceResponse(city1, city2, distance, "km");
+        double distance = calculateHaversine(city1.getLatitude(), city1.getLongitude(), city2.getLatitude(), city2.getLongitude());
+        CityPair cityPair = new CityPair();
+        cityPair.setCity1(city1);
+        cityPair.setCity2(city2);
+        cityPair.setDistance(distance);
+        cityPair.setUnit("km");
+        city1.getCityPairs().add(cityPair);
+        cityRepository.save(city1);
+        DistanceResponse response = new DistanceResponse(city1Name, city2Name, distance, "km");
+        simpleCache.put(cacheKey, response);
+        return response;
     }
 
     public List<DistanceResponse> calculateBulkDistances(List<String[]> cityPairs) {
@@ -52,7 +72,7 @@ public class DistanceService {
     }
 
     private double calculateHaversine(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Radius of the Earth in kilometers
+        final int R = 6371;
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
