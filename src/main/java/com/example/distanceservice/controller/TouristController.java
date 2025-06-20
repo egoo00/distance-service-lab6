@@ -23,25 +23,52 @@ public class TouristController {
 
     @GetMapping
     public List<Tourist> getAllTourists() {
-        requestCounter.increment();
-        return touristService.getAllTourists();
+        requestCounter.incrementTotal();
+        try {
+            List<Tourist> tourists = touristService.getAllTourists();
+            requestCounter.incrementSuccessful();
+            return tourists;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
     public Optional<Tourist> getTouristById(@PathVariable Long id) {
-        requestCounter.increment();
-        return touristService.getTouristById(id);
+        requestCounter.incrementTotal();
+        try {
+            Optional<Tourist> tourist = touristService.getTouristById(id);
+            requestCounter.incrementSuccessful();
+            return tourist;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @PostMapping
     public Tourist saveTourist(@RequestBody Tourist tourist) {
-        requestCounter.increment();
-        return touristService.saveTourist(tourist);
+        requestCounter.incrementTotal();
+        try {
+            Tourist savedTourist = touristService.saveTourist(tourist);
+            requestCounter.incrementSuccessful();
+            return savedTourist;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public void deleteTourist(@PathVariable Long id) {
-        requestCounter.increment();
-        touristService.deleteTourist(id);
+        requestCounter.incrementTotal();
+        try {
+            touristService.deleteTourist(id);
+            requestCounter.incrementSuccessful();
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 }
