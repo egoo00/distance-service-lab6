@@ -25,25 +25,52 @@ public class CountryController {
 
     @GetMapping
     public List<Country> getAllCountries() {
-        requestCounter.increment();
-        return countryService.getAllCountries();
+        requestCounter.incrementTotal();
+        try {
+            List<Country> countries = countryService.getAllCountries();
+            requestCounter.incrementSuccessful();
+            return countries;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
     public Optional<Country> getCountryById(@PathVariable Long id) {
-        requestCounter.increment();
-        return countryService.getCountryById(id);
+        requestCounter.incrementTotal();
+        try {
+            Optional<Country> country = countryService.getCountryById(id);
+            requestCounter.incrementSuccessful();
+            return country;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @PostMapping
     public Country saveCountry(@RequestBody Country country) {
-        requestCounter.increment();
-        return countryService.saveCountry(country);
+        requestCounter.incrementTotal();
+        try {
+            Country savedCountry = countryService.saveCountry(country);
+            requestCounter.incrementSuccessful();
+            return savedCountry;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public void deleteCountry(@PathVariable Long id) {
-        requestCounter.increment();
-        countryService.deleteCountry(id);
+        requestCounter.incrementTotal();
+        try {
+            countryService.deleteCountry(id);
+            requestCounter.incrementSuccessful();
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 }
