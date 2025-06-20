@@ -34,7 +34,7 @@ public class DistanceControllerTest {
     }
 
     @Test
-    void testGetDistance_ValidCities_ReturnsDistance() {
+    void testGetDistance_ValidCities_IncrementsCounters() {
         DistanceResponse response = new DistanceResponse(CITY_MINSK, CITY_WARSAW, EXPECTED_DISTANCE_MINSK_WARSAW, UNIT_KM);
         when(distanceService.calculateDistance(CITY_MINSK, CITY_WARSAW)).thenReturn(response);
 
@@ -42,11 +42,13 @@ public class DistanceControllerTest {
 
         assertNotNull(result.getBody());
         assertEquals(response, result.getBody());
+        verify(requestCounter).incrementTotal();
+        verify(requestCounter).incrementSuccessful();
         verify(distanceService).calculateDistance(CITY_MINSK, CITY_WARSAW);
     }
 
     @Test
-    void testGetBulkDistances_ValidPairs_ReturnsList() {
+    void testGetBulkDistances_ValidPairs_IncrementsCounters() {
         DistanceResponse response = new DistanceResponse(CITY_MINSK, CITY_WARSAW, EXPECTED_DISTANCE_MINSK_WARSAW, UNIT_KM);
         List<DistanceResponse> responses = Collections.singletonList(response);
         when(distanceService.calculateBulkDistances(anyList())).thenReturn(responses);
@@ -55,17 +57,39 @@ public class DistanceControllerTest {
 
         assertNotNull(result.getBody());
         assertEquals(1, result.getBody().size());
+        verify(requestCounter).incrementTotal();
+        verify(requestCounter).incrementSuccessful();
         verify(distanceService).calculateBulkDistances(anyList());
     }
 
     @Test
-    void testGetRequestCount_ReturnsCount() {
-        when(requestCounter.getCount()).thenReturn(10);
+    void testGetRequestCount_IncrementsCounters() {
+        when(requestCounter.getTotalRequests()).thenReturn(10);
 
         ResponseEntity<Integer> result = (ResponseEntity<Integer>) (Object) distanceController.getRequestCount();
 
         assertNotNull(result.getBody());
         assertEquals(10, result.getBody());
-        verify(requestCounter).getCount();
+        verify(requestCounter).incrementTotal();
+        verify(requestCounter).incrementSuccessful();
+    }
+
+    @Test
+    void testResetCounter_IncrementsAndResets() {
+        distanceController.resetCounter();
+
+        verify(requestCounter).incrementTotal();
+        verify(requestCounter).incrementSuccessful();
+        verify(requestCounter).reset();
+    }
+
+    @Test
+    void testGetDistance_FailedRequest_IncrementsFailed() {
+        when(distanceService.calculateDistance(CITY_MINSK, CITY_WARSAW)).thenThrow(new RuntimeException("Test exception"));
+
+        assertThrows(RuntimeException.class, () -> distanceController.getDistance(CITY_MINSK, CITY_WARSAW));
+        verify(requestCounter).incrementTotal();
+        verify(requestCounter).incrementFailed();
+        verifyNoInteractions(requestCounter, never()).incrementSuccessful();
     }
 }
