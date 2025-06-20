@@ -25,25 +25,52 @@ public class CityController {
 
     @GetMapping
     public List<City> getAllCities() {
-        requestCounter.increment();
-        return cityService.getAllCities();
+        requestCounter.incrementTotal();
+        try {
+            List<City> cities = cityService.getAllCities();
+            requestCounter.incrementSuccessful();
+            return cities;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
     public Optional<City> getCityById(@PathVariable Long id) {
-        requestCounter.increment();
-        return cityService.getCityById(id);
+        requestCounter.incrementTotal();
+        try {
+            Optional<City> city = cityService.getCityById(id);
+            requestCounter.incrementSuccessful();
+            return city;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @PostMapping
     public City saveCity(@RequestBody City city) {
-        requestCounter.increment();
-        return cityService.saveCity(city);
+        requestCounter.incrementTotal();
+        try {
+            City savedCity = cityService.saveCity(city);
+            requestCounter.incrementSuccessful();
+            return savedCity;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public void deleteCity(@PathVariable Long id) {
-        requestCounter.increment();
-        cityService.deleteCity(id);
+        requestCounter.incrementTotal();
+        try {
+            cityService.deleteCity(id);
+            requestCounter.incrementSuccessful();
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 }
