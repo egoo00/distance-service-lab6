@@ -5,7 +5,6 @@ import java.util.List;
 public class GeocodingResponse {
     private List<Result> results;
 
-    
     public List<Result> getResults() {
         return results;
     }
