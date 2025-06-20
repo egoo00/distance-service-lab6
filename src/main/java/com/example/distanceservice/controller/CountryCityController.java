@@ -26,13 +26,27 @@ public class CountryCityController {
 
     @GetMapping(API_PATH_CITIES_BY_COUNTRY)
     public List<City> getCitiesByCountry(@RequestParam String countryName) {
-        requestCounter.increment();
-        return countryCityService.getCitiesByCountry(countryName);
+        requestCounter.incrementTotal();
+        try {
+            List<City> cities = countryCityService.getCitiesByCountry(countryName);
+            requestCounter.incrementSuccessful();
+            return cities;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @GetMapping(API_PATH_CITIES_BY_COUNTRY_NATIVE)
     public List<City> getCitiesByCountryNative(@RequestParam String countryName) {
-        requestCounter.increment();
-        return countryCityService.getCitiesByCountryNative(countryName);
+        requestCounter.incrementTotal();
+        try {
+            List<City> cities = countryCityService.getCitiesByCountryNative(countryName);
+            requestCounter.incrementSuccessful();
+            return cities;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 }
