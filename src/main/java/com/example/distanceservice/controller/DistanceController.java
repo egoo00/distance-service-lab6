@@ -27,25 +27,52 @@ public class DistanceController {
 
     @GetMapping(API_PATH_DISTANCE)
     public DistanceResponse getDistance(@RequestParam String from, @RequestParam String to) {
-        requestCounter.increment();
-        return distanceService.calculateDistance(from, to);
+        requestCounter.incrementTotal();
+        try {
+            DistanceResponse response = distanceService.calculateDistance(from, to);
+            requestCounter.incrementSuccessful();
+            return response;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @PostMapping(API_PATH_DISTANCES_BULK)
     public List<DistanceResponse> getBulkDistances(@RequestBody List<String[]> cityPairs) {
-        requestCounter.increment();
-        return distanceService.calculateBulkDistances(cityPairs);
+        requestCounter.incrementTotal();
+        try {
+            List<DistanceResponse> responses = distanceService.calculateBulkDistances(cityPairs);
+            requestCounter.incrementSuccessful();
+            return responses;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @GetMapping(API_PATH_COUNTER)
     public int getRequestCount() {
-        requestCounter.increment();
-        return requestCounter.getCount();
+        requestCounter.incrementTotal();
+        try {
+            int count = requestCounter.getTotalRequests();
+            requestCounter.incrementSuccessful();
+            return count;
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 
     @GetMapping(API_PATH_RESET)
     public void resetCounter() {
-        requestCounter.increment();
-        requestCounter.reset();
+        requestCounter.incrementTotal();
+        try {
+            requestCounter.reset();
+            requestCounter.incrementSuccessful();
+        } catch (Exception e) {
+            requestCounter.incrementFailed();
+            throw e;
+        }
     }
 }
