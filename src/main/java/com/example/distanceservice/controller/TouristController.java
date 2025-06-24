@@ -2,7 +2,7 @@ package com.example.distanceservice.controller;
 
 import com.example.distanceservice.entity.Tourist;
 import com.example.distanceservice.service.TouristService;
-import com.example.distanceservice.util.RequestCounter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,60 +14,44 @@ public class TouristController {
     private static final String API_PATH = "/api/tourists";
 
     private final TouristService touristService;
-    private final RequestCounter requestCounter;
 
-    public TouristController(TouristService touristService, RequestCounter requestCounter) {
+    @Autowired
+    public TouristController(TouristService touristService) {
         this.touristService = touristService;
-        this.requestCounter = requestCounter;
     }
 
     @GetMapping
     public List<Tourist> getAllTourists() {
-        requestCounter.incrementTotal();
         try {
-            List<Tourist> tourists = touristService.getAllTourists();
-            requestCounter.incrementSuccessful();
-            return tourists;
+            return touristService.getAllTourists();
         } catch (Exception e) {
-            requestCounter.incrementFailed();
             throw e;
         }
     }
 
     @GetMapping("/{id}")
     public Optional<Tourist> getTouristById(@PathVariable Long id) {
-        requestCounter.incrementTotal();
         try {
-            Optional<Tourist> tourist = touristService.getTouristById(id);
-            requestCounter.incrementSuccessful();
-            return tourist;
+            return touristService.getTouristById(id);
         } catch (Exception e) {
-            requestCounter.incrementFailed();
             throw e;
         }
     }
 
     @PostMapping
     public Tourist saveTourist(@RequestBody Tourist tourist) {
-        requestCounter.incrementTotal();
         try {
-            Tourist savedTourist = touristService.saveTourist(tourist);
-            requestCounter.incrementSuccessful();
-            return savedTourist;
+            return touristService.saveTourist(tourist);
         } catch (Exception e) {
-            requestCounter.incrementFailed();
             throw e;
         }
     }
 
     @DeleteMapping("/{id}")
     public void deleteTourist(@PathVariable Long id) {
-        requestCounter.incrementTotal();
         try {
             touristService.deleteTourist(id);
-            requestCounter.incrementSuccessful();
         } catch (Exception e) {
-            requestCounter.incrementFailed();
             throw e;
         }
     }
