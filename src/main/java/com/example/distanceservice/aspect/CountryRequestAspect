@@ -1,0 +1,28 @@
+package com.example.distanceservice.aspect;
+
+import com.example.distanceservice.entity.City;
+import com.example.distanceservice.service.CountryCityService;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Aspect
+@Component
+public class CountryRequestAspect {
+    private final CountryCityService countryCityService;
+
+    @Autowired
+    public CountryRequestAspect(CountryCityService countryCityService) {
+        this.countryCityService = countryCityService;
+    }
+
+    @Around("execution(* com.example.distanceservice.controller.*.*(..)) && args(countryName,..)")
+    public Object handleCountryRequest(ProceedingJoinPoint joinPoint, String countryName) throws Throwable {
+        List<City> cities = countryCityService.getCitiesByCountry(countryName);
+        return joinPoint.proceed();
+    }
+}
