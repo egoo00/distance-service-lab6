@@ -1,6 +1,7 @@
 package com.example.distanceservice.controller;
 
 import com.example.distanceservice.dto.DistanceResponse;
+import com.example.distanceservice.entity.CityPair;
 import com.example.distanceservice.service.DistanceService;
 import com.example.distanceservice.aspect.RequestCounterAspect;
 import org.springframework.beans.factory.annotation.Autowired;
