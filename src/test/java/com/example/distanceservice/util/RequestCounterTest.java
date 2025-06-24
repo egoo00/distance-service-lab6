@@ -1,41 +1,53 @@
 package com.example.distanceservice.util;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.stereotype.Component;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@Component
-public class RequestCounter {
-    private final AtomicInteger totalRequests = new AtomicInteger(0);
-    private final AtomicInteger successfulRequests = new AtomicInteger(0);
-    private final AtomicInteger failedRequests = new AtomicInteger(0);
+public class RequestCounterTest {
 
-    public void incrementTotal() {
-        totalRequests.incrementAndGet();
+    private static final int INITIAL_COUNT = 0;
+    private static final int INCREMENT_VALUE = 1;
+
+    private RequestCounter requestCounter;
+
+    @BeforeEach
+    void setUp() {
+        requestCounter = new RequestCounter();
     }
 
-    public void incrementSuccessful() {
-        successfulRequests.incrementAndGet();
+    @Test
+    void testIncrementTotal_IncreasesTotalCount() {
+        requestCounter.incrementTotal();
+        assertEquals(INITIAL_COUNT + INCREMENT_VALUE, requestCounter.getTotalRequests());
+        requestCounter.incrementTotal();
+        assertEquals(INITIAL_COUNT + 2 * INCREMENT_VALUE, requestCounter.getTotalRequests());
     }
 
-    public void incrementFailed() {
-        failedRequests.incrementAndGet();
+    @Test
+    void testIncrementSuccessful_IncreasesSuccessfulCount() {
+        requestCounter.incrementSuccessful();
+        assertEquals(INITIAL_COUNT + INCREMENT_VALUE, requestCounter.getSuccessfulRequests());
+        requestCounter.incrementSuccessful();
+        assertEquals(INITIAL_COUNT + 2 * INCREMENT_VALUE, requestCounter.getSuccessfulRequests());
     }
 
-    public int getTotalRequests() {
-        return totalRequests.get();
+    @Test
+    void testIncrementFailed_IncreasesFailedCount() {
+        requestCounter.incrementFailed();
+        assertEquals(INITIAL_COUNT + INCREMENT_VALUE, requestCounter.getFailedRequests());
+        requestCounter.incrementFailed();
+        assertEquals(INITIAL_COUNT + 2 * INCREMENT_VALUE, requestCounter.getFailedRequests());
     }
 
-    public int getSuccessfulRequests() {
-        return successfulRequests.get();
-    }
-
-    public int getFailedRequests() {
-        return failedRequests.get();
-    }
-
-    public void reset() {
-        totalRequests.set(0);
-        successfulRequests.set(0);
-        failedRequests.set(0);
+    @Test
+    void testReset_SetsAllCountsToZero() {
+        requestCounter.incrementTotal();
+        requestCounter.incrementSuccessful();
+        requestCounter.incrementFailed();
+        requestCounter.reset();
+        assertEquals(INITIAL_COUNT, requestCounter.getTotalRequests());
+        assertEquals(INITIAL_COUNT, requestCounter.getSuccessfulRequests());
+        assertEquals(INITIAL_COUNT, requestCounter.getFailedRequests());
     }
 }
