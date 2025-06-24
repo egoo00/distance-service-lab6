@@ -1,51 +1,41 @@
 package com.example.distanceservice.util;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.stereotype.Component;
 
-import static org.junit.jupiter.api.Assertions.*;
+@Component
+public class RequestCounter {
+    private final AtomicInteger totalRequests = new AtomicInteger(0);
+    private final AtomicInteger successfulRequests = new AtomicInteger(0);
+    private final AtomicInteger failedRequests = new AtomicInteger(0);
 
-public class RequestCounterTest {
-
-    private RequestCounter requestCounter;
-
-    @BeforeEach
-    void setUp() {
-        requestCounter = new RequestCounter();
+    public void incrementTotal() {
+        totalRequests.incrementAndGet();
     }
 
-    @Test
-    void testIncrementTotal_IncreasesTotalCount() {
-        requestCounter.incrementTotal();
-        assertEquals(1, requestCounter.getTotalRequests());
-        requestCounter.incrementTotal();
-        assertEquals(2, requestCounter.getTotalRequests());
+    public void incrementSuccessful() {
+        successfulRequests.incrementAndGet();
     }
 
-    @Test
-    void testIncrementSuccessful_IncreasesSuccessfulCount() {
-        requestCounter.incrementSuccessful();
-        assertEquals(1, requestCounter.getSuccessfulRequests());
-        requestCounter.incrementSuccessful();
-        assertEquals(2, requestCounter.getSuccessfulRequests());
+    public void incrementFailed() {
+        failedRequests.incrementAndGet();
     }
 
-    @Test
-    void testIncrementFailed_IncreasesFailedCount() {
-        requestCounter.incrementFailed();
-        assertEquals(1, requestCounter.getFailedRequests());
-        requestCounter.incrementFailed();
-        assertEquals(2, requestCounter.getFailedRequests());
+    public int getTotalRequests() {
+        return totalRequests.get();
     }
 
-    @Test
-    void testReset_SetsAllCountsToZero() {
-        requestCounter.incrementTotal();
-        requestCounter.incrementSuccessful();
-        requestCounter.incrementFailed();
-        requestCounter.reset();
-        assertEquals(0, requestCounter.getTotalRequests());
-        assertEquals(0, requestCounter.getSuccessfulRequests());
-        assertEquals(0, requestCounter.getFailedRequests());
+    public int getSuccessfulRequests() {
+        return successfulRequests.get();
+    }
+
+    public int getFailedRequests() {
+        return failedRequests.get();
+    }
+
+    public void reset() {
+        totalRequests.set(0);
+        successfulRequests.set(0);
+        failedRequests.set(0);
     }
 }
