@@ -1,1 +1,48 @@
+package com.example.distanceservice.aspect;
 
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.stereotype.Component;
+
+@Aspect
+@Component
+public class RequestCounterAspect {
+    private int totalRequests = 0;
+    private int successfulRequests = 0;
+    private int failedRequests = 0;
+
+    @Before("execution(* com.example.distanceservice.controller.*.*(..))")
+    public void incrementTotal() {
+        totalRequests++;
+    }
+
+    @AfterReturning("execution(* com.example.distanceservice.controller.*.*(..))")
+    public void incrementSuccessful() {
+        successfulRequests++;
+    }
+
+    @AfterThrowing("execution(* com.example.distanceservice.controller.*.*(..))")
+    public void incrementFailed() {
+        failedRequests++;
+    }
+
+    public int getTotalRequests() {
+        return totalRequests;
+    }
+
+    public int getSuccessfulRequests() {
+        return successfulRequests;
+    }
+
+    public int getFailedRequests() {
+        return failedRequests;
+    }
+
+    public void reset() {
+        totalRequests = 0;
+        successfulRequests = 0;
+        failedRequests = 0;
+    }
+}
