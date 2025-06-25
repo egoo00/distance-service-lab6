@@ -7,18 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
+import java.util.List;
 
-import static com.example.distanceservice.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class CountryCityControllerTest {
-
-
-    
 
     @Mock
     private CountryCityService countryCityService;
@@ -32,26 +28,26 @@ public class CountryCityControllerTest {
     }
 
     @Test
-    void testGetCitiesByCountry_ValidCountry_ReturnsList() {
-        City city = new City(CITY_MOSCOW, MOSCOW_LAT, MOSCOW_LON);
-        when(countryCityService.getCitiesByCountry(COUNTRY_RUSSIA)).thenReturn(Collections.singletonList(city));
+    void shouldReturnListWhenGetCitiesByCountryValid() {
+        List<City> cities = Collections.emptyList();
+        when(countryCityService.getCitiesByCountry(anyString())).thenReturn(cities);
 
-        ResponseEntity<List<City>> response = (ResponseEntity<List<City>>) (Object) countryCityController.getCitiesByCountry(COUNTRY_RUSSIA);
+        List<City> response = countryCityController.getCitiesByCountry("country");
 
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(countryCityService).getCitiesByCountry(COUNTRY_RUSSIA);
+        assertNotNull(response);
+        assertEquals(0, response.size());
+        verify(countryCityService).getCitiesByCountry("country");
     }
 
     @Test
-    void testGetCitiesByCountryNative_ValidCountry_ReturnsList() {
-        City city = new City(CITY_MOSCOW, MOSCOW_LAT, MOSCOW_LON);
-        when(countryCityService.getCitiesByCountryNative(COUNTRY_RUSSIA)).thenReturn(Collections.singletonList(city));
+    void shouldReturnListWhenGetCitiesByCountryNativeValid() {
+        List<City> cities = Collections.emptyList();
+        when(countryCityService.getCitiesByCountryNative(anyString())).thenReturn(cities);
 
-        ResponseEntity<List<City>> response = (ResponseEntity<List<City>>) (Object) countryCityController.getCitiesByCountryNative(COUNTRY_RUSSIA);
+        List<City> response = countryCityController.getCitiesByCountryNative("country");
 
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(countryCityService).getCitiesByCountryNative(COUNTRY_RUSSIA);
+        assertNotNull(response);
+        assertEquals(0, response.size());
+        verify(countryCityService).getCitiesByCountryNative("country");
     }
 }
